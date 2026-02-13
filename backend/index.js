@@ -34,10 +34,6 @@ app.use('/api/v1/order', orderRoute)
 app.use('/api/v1/customer', customerRoute)
 app.use('/api/v1/dish', dishRoute)
 
-app.get("/", (req, res) => {
-    res.send("Server is running");
-});
-
 app.use(express.static(path.join(DIRNAME, "/frontend/dist")))
 app.get(/^(.*)$/, (_, res) => {
     res.sendFile(path.join(DIRNAME, "frontend", "dist", "index.html"))
