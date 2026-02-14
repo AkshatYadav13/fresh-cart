@@ -227,6 +227,17 @@ const Cart = () => {
                                 {isLocating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Navigation className="h-4 w-4 mr-1" />}
                                 Detect Location
                             </Button>
+
+<div className="">
+<p className="text-sm text-green-700 font-medium mt-2">
+  🚚 Your order will be delivered the next day.
+</p>
+
+<p className="text-sm text-green-700 font-medium">
+  💵 Payment method: Cash on Delivery (COD).
+</p>
+</div>
+
                         </div>
                     </CardContent>
                 </Card>

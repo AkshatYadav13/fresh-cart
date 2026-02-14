@@ -45,7 +45,7 @@ const Orders = () => {
     const pastOrders = mockOrders.filter(o => o.status === "Completed");
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 p-4 md:p-6 pb-24">
+        <div className="dark:bg-gray-900 min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 p-4 md:p-6 pb-24">
             <div className="max-w-4xl mx-auto space-y-8">
                 <div className="space-y-2">
                     <h1 className="text-3xl font-bold text-green-900">My Orders</h1>
@@ -82,69 +82,86 @@ const Orders = () => {
     );
 };
 
-const OrderCard = ({ order }) => (
-    <Card className="border-green-100 hover:shadow-md transition-shadow">
-        <CardHeader className="pb-2">
-            <div className="flex justify-between items-start">
-                <div>
-                    <CardTitle className="text-lg text-green-900 flex items-center gap-2">
-                        <Package className="h-4 w-4" />
-                        Order #{order.id}
-                    </CardTitle>
-                    <CardDescription className="text-green-700">
-                        Ordered from {order.vendor} on {order.date}
-                    </CardDescription>
+const OrderCard = ({ order, userRole }) => {
+    // Determine labels based on user role
+    const isVendor = userRole === 'Vendor';
+    const pickupLabel = isVendor ? "Your Location" : "Vendor Pickup";
+    const dropLabel = isVendor ? "Customer Location" : "Your Location";
+    const orderFromTo = isVendor ? `Order to ${order.customer}` : `Ordered from ${order.vendor}`;
+
+    return (
+        <Card className="bg-white dark:bg-gray-800 border-green-100 hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2">
+                <div className="flex justify-between items-start">
+                    <div>
+                        <CardTitle className="text-lg text-green-900 flex items-center gap-2">
+                            <Package className="h-4 w-4" />
+                            Order #{order.id}
+                        </CardTitle>
+                        <CardDescription className="text-green-700">
+                            {orderFromTo} on {order.date}
+                        </CardDescription>
+                        <CardDescription className="text-green-700">
+                            Delivery Date {new Date(new Date(order.date).setDate(new Date(order.date).getDate() + 1)).toLocaleDateString()}
+                        </CardDescription>
+                    </div>
+                    <Badge className={order.status === 'Active' ? 'bg-green-600' : 'bg-gray-500'}>
+                        {order.status}
+                    </Badge>
                 </div>
-                <Badge className={order.status === 'Active' ? 'bg-green-600' : 'bg-gray-500'}>
-                    {order.status}
-                </Badge>
-            </div>
-        </CardHeader>
-        <CardContent>
-            <div className="space-y-4">
-                <div className="divide-y divide-green-50">
-                    {order.items.map((item, i) => (
-                        <div key={i} className="py-2 flex justify-between text-sm">
-                            <span className="text-gray-700">{item.name} x {item.quantity}</span>
-                            <span className="font-medium text-green-900">₹{item.price}</span>
+            </CardHeader>
+            <CardContent>
+                <div className="space-y-4">
+                    <div className="divide-y divide-green-50">
+                        {order.items.map((item, i) => (
+                            <div key={i} className="py-2 flex justify-between text-sm">
+                                <span className="text-gray-700">{item.name} x {item.quantity}</span>
+                                <span className="font-medium text-green-900">₹{item.price}</span>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="pt-2 border-t border-green-100 flex justify-between items-center">
+                        <span className="font-bold text-green-900 text-lg">Total</span>
+                        <span className="font-bold text-green-900 text-lg">₹{order.total}</span>
+                    </div>
+
+                    {/* Payment Method */}
+                    <div className="bg-green-50 p-3 rounded-lg border border-green-100">
+                        <p className="text-green-600 font-semibold text-xs">Payment Method</p>
+                        <p className="text-green-900 text-sm">Cash on Delivery (COD)</p>
+                    </div>
+
+                    {/* Delivery Info */}
+                    <div className="grid grid-cols-2 gap-4 text-xs bg-white/50 p-3 rounded-lg border border-green-50">
+                        <div>
+                            <p className="text-green-600 font-semibold">Distance</p>
+                            <p className="text-green-900">{order.deliveryDetails.distanceKm} km</p>
                         </div>
-                    ))}
-                </div>
-                <div className="pt-2 border-t border-green-100 flex justify-between items-center">
-                    <span className="font-bold text-green-900 text-lg">Total</span>
-                    <span className="font-bold text-green-900 text-lg">₹{order.total}</span>
-                </div>
-
-                {/* Delivery Info */}
-                <div className="grid grid-cols-2 gap-4 text-xs bg-white/50 p-3 rounded-lg border border-green-50">
-                    <div>
-                        <p className="text-green-600 font-semibold">Distance</p>
-                        <p className="text-green-900">{order.deliveryDetails.distanceKm} km</p>
+                        <div>
+                            <p className="text-green-600 font-semibold">Est. Delivery</p>
+                            <p className="text-green-900">{order.deliveryDetails.estimatedTimeMin} mins</p>
+                        </div>
                     </div>
-                    <div>
-                        <p className="text-green-600 font-semibold">Est. Delivery</p>
-                        <p className="text-green-900">{order.deliveryDetails.estimatedTimeMin} mins</p>
+
+                    {/* Live Tracking Map */}
+                    <div className="overflow-hidden rounded-xl border border-green-100">
+                        <LiveTrackingMap
+                            agentData={{
+                                lat: order.deliveryDetails.pickup.latitude,
+                                lng: order.deliveryDetails.pickup.longitude,
+                                label: pickupLabel
+                            }}
+                            destinationData={{
+                                lat: order.deliveryDetails.drop.latitude,
+                                lng: order.deliveryDetails.drop.longitude,
+                                label: dropLabel
+                            }}
+                        />
                     </div>
                 </div>
-
-                {/* Live Tracking Map */}
-                <div className="overflow-hidden rounded-xl border border-green-100">
-                    <LiveTrackingMap
-                        agentData={{
-                            lat: order.deliveryDetails.pickup.latitude,
-                            lng: order.deliveryDetails.pickup.longitude,
-                            label: "Vendor Pickup"
-                        }}
-                        destinationData={{
-                            lat: order.deliveryDetails.drop.latitude,
-                            lng: order.deliveryDetails.drop.longitude,
-                            label: "Your Drop Location"
-                        }}
-                    />
-                </div>
-            </div>
-        </CardContent>
-    </Card>
-);
+            </CardContent>
+        </Card>
+    );
+};
 
 export default Orders;

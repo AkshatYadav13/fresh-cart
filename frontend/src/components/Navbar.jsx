@@ -4,7 +4,6 @@ import { Sun, Moon, Menu, User, ClipboardList, Package, LogOut, Home, Store, Sho
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useAppStore } from "@/store/useAppStore";
-import VendorNotificationHub from "./vendor/govPolicies";
 
 const Navbar = () => {
   const { theme, setTheme, user, logout } = useAppStore();
